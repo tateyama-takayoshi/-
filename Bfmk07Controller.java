@@ -44,31 +44,15 @@ public class Bfmk07Controller {
 
 		// 適用日（FROM)を取得
 		String today = service.today();
-
-		// リスト総数取得
-		int totalNum = service.countNum(); 
-		int totalPage;
-
-		// ページ総数の判定
-		if(totalNum % MAX_SHOW_PAGE == 0) {
-			totalPage = totalNum / MAX_SHOW_PAGE;
-		}else {
-			totalPage = totalNum / MAX_SHOW_PAGE + 1;
-		}
+		model.addAttribute("apply_strt_date", today);
 
 		// 初期表示の場合、1ページに設定
 		if (currentPage == 0){
 			currentPage = 1;
 		}
 
-		// リスト情報を取得
-		List<Bfmk07Entity> listAll = service.getDBList(currentPage, MAX_SHOW_PAGE);
-
-		model.addAttribute("list", listAll);
-		model.addAttribute("totalNum", totalNum);
-		model.addAttribute("page", currentPage);
-		model.addAttribute("totalPage", totalPage);
-		model.addAttribute("today", today);
+		// 共通表示設定メソッドを呼び出し
+		this.commonView(model);
 
 		return "bfmk07View";
 	}
@@ -80,6 +64,7 @@ public class Bfmk07Controller {
 	 */
 	@PostMapping(path = "/207", params = "back")
 	public String back(Model model) {
+
 		return "bfkt02View";
 	}
 
@@ -91,8 +76,8 @@ public class Bfmk07Controller {
 	@PostMapping(path = "/207", params = "clrear")
 	public String clear(Model model) {
 
-		// 初期設定メソッドを呼び出し
-		this.init(model);
+		// 共通表示設定メソッドを呼び出し
+		this.commonView(model);
 
 		return "bfmk07View";
 	}
@@ -114,7 +99,7 @@ public class Bfmk07Controller {
 			model.addAttribute("message", msg);
 
 			// 初期設定メソッドを呼び出し
-			this.init(model);
+			this.commonView(model);
 
 		// 入力チェックでエラー無しの場合
 		}else {
@@ -147,8 +132,8 @@ public class Bfmk07Controller {
 				}
 			}
 
-			// 初期設定メソッドを呼び出し
-			this.init(model);
+			// 共通表示設定メソッドを呼び出し
+			this.commonView(model);
 		}
 
 		return "bfmk07View";
@@ -200,8 +185,8 @@ public class Bfmk07Controller {
 			}
 		}
 
-		// 初期設定メソッドを呼び出し
-		this.init(model);
+		// 共通表示設定メソッドを呼び出し
+		this.commonView(model);
 
 		return "bfmk07View";
 	}
@@ -215,31 +200,13 @@ public class Bfmk07Controller {
 	@PostMapping(path = "/207", params = "firstPage")
 	public String firstPage(Bfmk07Form form, Model model) {
 
-		// リスト総数の取得
-		int totalNum = service.countNum(); 
-		int totalPage;
-
-		// ページ総数の判定
-		if(totalNum % MAX_SHOW_PAGE == 0) {
-			totalPage = totalNum / MAX_SHOW_PAGE;
-		}else {
-			totalPage = totalNum / MAX_SHOW_PAGE + 1;
-		}
-
 		currentPage = 1;
 
-		// リスト情報の取得
-		List<Bfmk07Entity> listAll = service.getDBList(currentPage, MAX_SHOW_PAGE);
+		// 共通表示設定メソッドを呼び出し
+		this.commonView(model);
 
-		model.addAttribute("affilicate_id", form.getAffilicate_id());
-		model.addAttribute("affilicate_name", form.getAffilicate_name());
-		model.addAttribute("affilicate_name_r", form.getAffilicate_name_r());
-		model.addAttribute("apply_strt_date", form.getApply_strt_date());
-		model.addAttribute("apply_fin_date", form.getApply_fin_date());
-		model.addAttribute("totalNum", totalNum);
-		model.addAttribute("page", currentPage);
-		model.addAttribute("totalPage", totalPage);
-		model.addAttribute("list", listAll);
+		// 共通入力値設定メソッドを呼出し
+		this.commonInputValue(form, model);
 
 		return "bfmk07View";
 	}
@@ -252,34 +219,18 @@ public class Bfmk07Controller {
 	@PostMapping(path = "/207", params = "backPage")
 	public String backPage(Bfmk07Form form, Model model) {
 
-		// リスト総数取得
-		int totalNum = service.countNum(); 
-		int totalPage;
-
-		// ページ総数の判定
-		if(totalNum % MAX_SHOW_PAGE == 0) {
-			totalPage = totalNum / MAX_SHOW_PAGE;
-		}else {
-			totalPage = totalNum / MAX_SHOW_PAGE + 1;
-		}
-	
 		// 最初のページではない場合、１ページ分減算
 		if (currentPage > 1) {
 			currentPage--;
 		}
 
-		// リスト情報の取得
-		List<Bfmk07Entity> listAll = service.getDBList(currentPage, MAX_SHOW_PAGE);
-	
-		model.addAttribute("affilicate_id", form.getAffilicate_id());
-		model.addAttribute("affilicate_name", form.getAffilicate_name());
-		model.addAttribute("affilicate_name_r", form.getAffilicate_name_r());
-		model.addAttribute("apply_strt_date", form.getApply_strt_date());
-		model.addAttribute("apply_fin_date", form.getApply_fin_date());
-		model.addAttribute("totalNum", service.countNum());
-		model.addAttribute("page", currentPage);
-		model.addAttribute("totalPage", totalPage);
-		model.addAttribute("list", listAll);
+		model.addAttribute("totalRecord", service.countRecord());
+
+		// 共通表示設定メソッドを呼出し
+		this.commonView(model);
+
+		// 共通入力値設定メソッドを呼出し
+		this.commonInputValue(form, model);
 
 		return "bfmk07View";
 	}
@@ -292,34 +243,17 @@ public class Bfmk07Controller {
 	@PostMapping(path = "/207", params = "nextPage")
 	public String nextPage(Bfmk07Form form, Model model) {
 
-		// リスト総数取得
-		int totalNum = service.countNum(); 
-		int totalPage;
-
-		// ページ総数の判定
-		if(totalNum % MAX_SHOW_PAGE == 0) {
-			totalPage = totalNum / MAX_SHOW_PAGE;
-		}else {
-			totalPage = totalNum / MAX_SHOW_PAGE + 1;
-		}
-
 		// 最後のページではない場合、１ページ分加算
-		if (currentPage < totalPage) {
+		// 共通総ページ数設定メソッドを呼び出し
+		if (currentPage < this.commonTotalRecord()) {
 			currentPage++;
 		}
 
-		// リスト情報の取得
-		List<Bfmk07Entity> listAll = service.getDBList(currentPage, MAX_SHOW_PAGE);
+		// 共通表示設定メソッドを呼び出し
+		this.commonView(model);
 
-		model.addAttribute("affilicate_id", form.getAffilicate_id());
-		model.addAttribute("affilicate_name", form.getAffilicate_name());
-		model.addAttribute("affilicate_name_r", form.getAffilicate_name_r());
-		model.addAttribute("apply_strt_date", form.getApply_strt_date());
-		model.addAttribute("apply_fin_date", form.getApply_fin_date());
-		model.addAttribute("totalNum", totalNum);
-		model.addAttribute("page", currentPage);
-		model.addAttribute("totalPage", totalPage);
-		model.addAttribute("list", listAll);
+		// 共通入力値設定メソッドを呼出し
+		this.commonInputValue(form, model);
 
 		return "bfmk07View";
 	}
@@ -332,33 +266,75 @@ public class Bfmk07Controller {
 	@PostMapping(path = "/207", params = "lastPage")
 	public String lastPage(Bfmk07Form form, Model model) {
 
-		// リスト総数の取得
-		int totalNum = service.countNum(); 
-		int totalPage;
-
-		// ページ総数の判定
-		if(totalNum % MAX_SHOW_PAGE == 0) {
-			totalPage = totalNum / MAX_SHOW_PAGE;
-		}else {
-			totalPage = totalNum / MAX_SHOW_PAGE + 1;
-		}
-
 		// 現在ページを最後のページで保持
-		currentPage = totalPage;
+		// 共通総ページ数設定メソッドを呼び出し
+		currentPage = this.commonTotalRecord();
 
-		// リスト情報の取得
+		// 共通表示設定メソッドを呼び出し
+		this.commonView(model);
+		
+		// 共通入力値設定メソッドを呼出し
+		this.commonInputValue(form, model);
+
+		return "bfmk07View";
+	}
+
+	/**
+	* 共通表示設定
+	* @param model
+	* @return 画面
+	*/
+	private String commonView(Model model) {
+
+		// リスト総数取得
+		int totalRecord = service.countRecord(); 
+
+		// リスト情報を取得
 		List<Bfmk07Entity> listAll = service.getDBList(currentPage, MAX_SHOW_PAGE);
+
+		model.addAttribute("list", listAll);
+		model.addAttribute("totalRecord", totalRecord);
+		model.addAttribute("page", currentPage);
+		// 共通総ページ数設定メソッドを呼び出し
+		model.addAttribute("totalPage", this.commonTotalRecord());
+
+		return "bfmk07View";
+	}
+	
+	/**
+	* 共通入力値設定
+	* @param model
+	* @return 画面
+	*/
+	private String commonInputValue(Bfmk07Form form, Model model) {
 
 		model.addAttribute("affilicate_id", form.getAffilicate_id());
 		model.addAttribute("affilicate_name", form.getAffilicate_name());
 		model.addAttribute("affilicate_name_r", form.getAffilicate_name_r());
 		model.addAttribute("apply_strt_date", form.getApply_strt_date());
 		model.addAttribute("apply_fin_date", form.getApply_fin_date());
-		model.addAttribute("totalNum", totalNum);
-		model.addAttribute("page", currentPage);
-		model.addAttribute("totalPage", totalPage);
-		model.addAttribute("list", listAll);
 
 		return "bfmk07View";
-	}
+	}	
+
+	/**
+	* 共通総ページ数設定
+	* @param model
+	* @return 画面
+	*/
+	private int commonTotalRecord() {
+
+		// リスト総数の取得
+		int totalRecord = service.countRecord(); 
+		int totalPage;
+
+		// ページ総数の判定
+		if(totalRecord % MAX_SHOW_PAGE == 0) {
+			totalPage = totalRecord / MAX_SHOW_PAGE;
+		}else {
+			totalPage = totalRecord / MAX_SHOW_PAGE + 1;
+		}
+
+		return totalPage;
+	}	
 }
